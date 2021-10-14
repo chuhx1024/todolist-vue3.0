@@ -1,5 +1,15 @@
 const StyleLintPlugin = require('stylelint-webpack-plugin')
 module.exports = {
+    css: {
+        loaderOptions: {
+            less: {
+                modifyVars: {
+                    // 'primary-color': '#006AFF',
+                },
+                javascriptEnabled: true,
+            },
+        },
+    },
     configureWebpack: {
         plugins: [new StyleLintPlugin({
             files: ['**/*.{vue,htm,html,css,sss,less,scss,sass}'],
