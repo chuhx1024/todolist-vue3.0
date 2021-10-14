@@ -21,14 +21,13 @@
                 </a-form>
                 <a-list
                     class="demo-loadmore-list"
-                    :loading="loading"
                     item-layout="horizontal"
                     :data-source="dataList"
                 >
-                    <template #renderItem="{ item }">
+                    <template #renderItem="{ item, index }">
                         <a-list-item>
                             <template #actions>
-                                <a>del</a>
+                                <a @click="handelDel(index)">del</a>
                             </template>
                             <div>{{item.name}}</div>
                         </a-list-item>
@@ -41,7 +40,7 @@
 </template>
 
 <script>
-import { defineComponent, reactive, ref, toRaw } from '@vue/runtime-core'
+import { defineComponent, reactive, ref } from '@vue/runtime-core'
 
 export default defineComponent({
     name: 'Todos',
@@ -58,12 +57,10 @@ export default defineComponent({
             name: { required: true, message: 'Please input Activity name', trigger: 'blur' },
         }
         const onSubmit = () => {
-            console.log(formRef, 1)
-            console.log(formRef.value, 2)
             formRef.value
                 .validate()
                 .then(() => {
-                    console.log('values', formState, toRaw(formState))
+                    dataList.push({ name: formState.name })
                 })
                 .catch(error => {
                     console.log('error', error)
@@ -71,6 +68,9 @@ export default defineComponent({
         }
         const resetForm = () => {
             formRef.value.resetFields()
+        }
+        const handelDel = (index) => {
+            dataList.splice(index, 1)
         }
         return {
             labelCol: {
@@ -84,6 +84,7 @@ export default defineComponent({
             formRef,
             dataList,
             onSubmit,
+            handelDel,
             resetForm,
         }
     },
