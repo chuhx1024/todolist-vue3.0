@@ -4,6 +4,20 @@ import router from './router'
 import store from './store'
 import 'ant-design-vue/dist/antd.less'
 
-import { Button } from 'ant-design-vue'
+import {
+    Button,
+    Layout,
+    Form,
+    Input,
+    List,
+} from 'ant-design-vue'
 
-createApp(App).use(store).use(router).use(Button).mount('#app')
+createApp(App)
+    .use(store)
+    .use(router)
+    .use(Button)
+    .use(Layout)
+    .use(Form)
+    .use(Input)
+    .use(List)
+    .mount('#app')
