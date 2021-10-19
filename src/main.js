@@ -11,6 +11,7 @@ import {
     Input,
     List,
     Checkbox,
+    Space,
 } from 'ant-design-vue'
 
 createApp(App)
@@ -22,4 +23,5 @@ createApp(App)
     .use(Input)
     .use(List)
     .use(Checkbox)
+    .use(Space)
     .mount('#app')

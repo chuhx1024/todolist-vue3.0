@@ -25,7 +25,7 @@
                 <a-list
                     class="demo-loadmore-list"
                     item-layout="horizontal"
-                    :data-source="dataList"
+                    :data-source="showData"
                 >
                     <template #renderItem="{ item, index }">
                         <a-list-item @dblclick="editTodo(item)">
@@ -47,6 +47,11 @@
                         </a-list-item>
                     </template>
                 </a-list>
+                <a-space :style="{'margin-top': '50px'}">
+                    <a-button type="link" @click="setShowData('all')">All</a-button>
+                    <a-button type="link" @click="setShowData('active')">Active</a-button>
+                    <a-button type="link" @click="setShowData('checked')">Checked</a-button>
+                </a-space>
             </a-layout-content>
             <a-layout-footer></a-layout-footer>
         </a-layout>
@@ -144,12 +149,39 @@ const usefilter = todo => {
     }
 }
 
+// 5. 全局过滤
+const useShow = (editingTodo) => {
+    var showData = ref([])
+    const setShowData = (flag) => {
+        showData.value = dataList.value.filter(item => {
+            if (flag === 'all') {
+                return true
+            } else if (flag === 'checked') {
+                return item.checked
+            } else {
+                return item === editingTodo.value
+            }
+        })
+    }
+    return {
+        showData,
+        setShowData,
+    }
+}
+
 export default defineComponent({
     name: 'Todos',
     setup () {
         const resetForm = () => {
             formRef.value.resetFields()
         }
+
+        const {
+            editingTodo,
+            editTodo,
+            doneEdit,
+            cancleEdit,
+        } = useEdit()
 
         return {
             formRef,
@@ -159,8 +191,12 @@ export default defineComponent({
             resetForm,
             ...useAdd(dataList),
             ...useDel(dataList),
-            ...useEdit(),
+            editingTodo,
+            editTodo,
+            doneEdit,
+            cancleEdit,
             ...usefilter(),
+            ...useShow(editingTodo),
         }
     },
     directives: {
