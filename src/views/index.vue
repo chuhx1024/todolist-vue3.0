@@ -8,8 +8,8 @@
                     ref="formRef"
                     :model="formState"
                     :rules="rules"
-                    :label-col="labelCol"
-                    :wrapper-col="wrapperCol"
+                    :label-col="{span: 4}"
+                    :wrapper-col="{span: 14}"
                 >
                     <a-form-item ref="name" label="Add" name="name">
                         <a-input v-model:value="formState.name" />
@@ -25,11 +25,17 @@
                     :data-source="dataList"
                 >
                     <template #renderItem="{ item, index }">
-                        <a-list-item>
+                        <a-list-item @dblclick="editTodo(item)">
+                            <a-checkbox v-model:checked="item.checked"></a-checkbox>
+                            <a-input
+                                v-if="item === editingTodo"
+                                v-model:value="item.name"
+                                @keyup.enter="doneEdit(item)"
+                            />
+                            <div v-else>{{item.name}}</div>
                             <template #actions>
-                                <a @click="handelDel(index)">del</a>
+                                <a @click="remove(index)">del</a>
                             </template>
-                            <div>{{item.name}}</div>
                         </a-list-item>
                     </template>
                 </a-list>
@@ -41,51 +47,87 @@
 
 <script>
 import { defineComponent, reactive, ref } from '@vue/runtime-core'
+// 基础数据
+const formRef = ref()
+const rules = {
+    name: { required: true, message: 'Please input Activity name', trigger: 'blur' },
+}
+
+const dataList = ref([
+    { name: 'qw' },
+    { name: 'qw' },
+])
+
+// 1. 添加待办事件
+const useAdd = todos => {
+    const formState = reactive({
+        name: '',
+    })
+    const onSubmit = () => {
+        formRef.value
+            .validate()
+            .then(() => {
+                todos.value.unshift({ name: formState.name, checked: false })
+            })
+            .catch(error => {
+                console.log('error', error)
+            })
+    }
+    return {
+        formRef,
+        formState,
+        onSubmit,
+    }
+}
+
+// 2. 删除代办事件
+const useDel = todos => {
+    const remove = (index) => {
+        dataList.value.splice(index, 1)
+    }
+    return {
+        remove,
+    }
+}
+
+// 3. 编辑代办项
+const useEdit = () => {
+    let beforeEditingText = '12'
+    const editingTodo = ref(null)
+    // 双击显示编辑
+    const editTodo = (todo) => {
+        // 编辑前的值
+        beforeEditingText = todo.name
+        // 记录正在编辑的项
+        editingTodo.value = todo
+        console.log(beforeEditingText)
+    }
+    const doneEdit = todo => {
+        editingTodo.value = null
+    }
+    return {
+        editingTodo,
+        editTodo,
+        doneEdit,
+    }
+}
 
 export default defineComponent({
     name: 'Todos',
     setup () {
-        const formRef = ref()
-        const formState = reactive({
-            name: '',
-        })
-        const dataList = reactive([
-            { name: 'qw' },
-            { name: 'qw' },
-        ])
-        const rules = {
-            name: { required: true, message: 'Please input Activity name', trigger: 'blur' },
-        }
-        const onSubmit = () => {
-            formRef.value
-                .validate()
-                .then(() => {
-                    dataList.push({ name: formState.name })
-                })
-                .catch(error => {
-                    console.log('error', error)
-                })
-        }
         const resetForm = () => {
             formRef.value.resetFields()
         }
-        const handelDel = (index) => {
-            dataList.splice(index, 1)
-        }
+
         return {
-            labelCol: {
-                span: 4,
-            },
-            wrapperCol: {
-                span: 14,
-            },
-            formState,
-            rules,
             formRef,
+            rules,
             dataList,
-            onSubmit,
-            handelDel,
+            useDel,
             resetForm,
+            ...useAdd(dataList),
+            ...useDel(dataList),
+            ...useEdit(),
         }
     },
 

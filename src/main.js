@@ -10,6 +10,7 @@ import {
     Form,
     Input,
     List,
+    Checkbox,
 } from 'ant-design-vue'
 
 createApp(App)
@@ -20,4 +21,5 @@ createApp(App)
     .use(Form)
     .use(Input)
     .use(List)
+    .use(Checkbox)
     .mount('#app')
