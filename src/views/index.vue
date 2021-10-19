@@ -30,7 +30,9 @@
                             <a-input
                                 v-if="item === editingTodo"
                                 v-model:value="item.name"
+                                v-editing-focus="item === editingTodo"
                                 @keyup.enter="doneEdit(item)"
+                                @keyup.esc="cancleEdit(item)"
                             />
                             <div v-else>{{item.name}}</div>
                             <template #actions>
@@ -100,15 +102,21 @@ const useEdit = () => {
         beforeEditingText = todo.name
         // 记录正在编辑的项
         editingTodo.value = todo
-        console.log(beforeEditingText)
     }
+    // enter 完成编辑
     const doneEdit = todo => {
         editingTodo.value = null
+    }
+    // esc 取消编辑
+    const cancleEdit = todo => {
+        editingTodo.value = null
+        todo = beforeEditingText
     }
     return {
         editingTodo,
         editTodo,
         doneEdit,
+        cancleEdit,
     }
 }
 
@@ -129,6 +137,13 @@ export default defineComponent({
             ...useDel(dataList),
             ...useEdit(),
         }
+    },
+    directives: {
+        editingFocus: (el, binding) => {
+            if (binding.value) {
+                el.focus()
+            }
+        },
     },
 
 })
