@@ -19,6 +19,9 @@
                         <a-button style="margin-left: 10px;" @click="resetForm">Reset</a-button>
                     </div>
                 </a-form>
+                <div class="all-done">
+                    <a-checkbox v-model:checked="allChecked">allChecked</a-checkbox>
+                </div>
                 <a-list
                     class="demo-loadmore-list"
                     item-layout="horizontal"
@@ -34,7 +37,10 @@
                                 @keyup.enter="doneEdit(item)"
                                 @keyup.esc="cancleEdit(item)"
                             />
-                            <div v-else>{{item.name}}</div>
+                            <div
+                                v-else
+                                :class="{ 'del-item': item.checked }"
+                            >{{item.name}}</div>
                             <template #actions>
                                 <a @click="remove(index)">del</a>
                             </template>
@@ -48,7 +54,7 @@
 </template>
 
 <script>
-import { defineComponent, reactive, ref } from '@vue/runtime-core'
+import { computed, defineComponent, reactive, ref } from '@vue/runtime-core'
 // 基础数据
 const formRef = ref()
 const rules = {
@@ -120,6 +126,24 @@ const useEdit = () => {
     }
 }
 
+// 4. 切换代办项
+const usefilter = todo => {
+    const allChecked = computed({
+        get () {
+            return !dataList.value.filter(item => !item.checked).length
+        },
+        set (value) {
+            console.log(value, 9090)
+            dataList.value.forEach(item => {
+                item.checked = value
+            })
+        },
+    })
+    return {
+        allChecked,
+    }
+}
+
 export default defineComponent({
     name: 'Todos',
     setup () {
@@ -136,6 +160,7 @@ export default defineComponent({
             ...useAdd(dataList),
             ...useDel(dataList),
             ...useEdit(),
+            ...usefilter(),
         }
     },
     directives: {
@@ -162,6 +187,15 @@ export default defineComponent({
             .ant-layout-content {
                 padding: 100px 300px;
             }
+        }
+
+        .all-done {
+            text-align: left;
+        }
+
+        .del-item {
+            color: #ccc;
+            text-decoration: line-through;
         }
     }
 
